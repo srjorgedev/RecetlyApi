@@ -41,3 +41,29 @@ export default async function LogIn(email, password) {
         }
     }
 }
+
+export async function GetUser(id) {
+    try {
+        const { data, error } = await Supabase
+            .from('user_basic_information')
+            .select('*')
+            .eq('user_id', id)
+
+        if (error) throw new Error(error.message)
+        if (data.length < 1) throw new Error("No se encontro la cuenta")
+
+        return {
+            status: 'Ok',
+            data: data[0],
+            error: false,
+            errorMessage: null
+        }
+    } catch (error) {
+        return {
+            status: 'Fail',
+            data: null,
+            error: true,
+            errorMessage: error
+        }
+    }
+}
