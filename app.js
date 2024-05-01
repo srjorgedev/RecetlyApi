@@ -7,6 +7,7 @@ import cors from 'cors'
 import Recipes from './src/routes/recipes.routes.js'
 import User from './src/routes/user.routes.js'
 import Auth from './src/routes/auth.routes.js'
+import Food from './src/routes/food.routes.js'
 
 dotenv.config()
 
@@ -28,6 +29,7 @@ app.get('/helloworld', (req, res) => {
 app.use('/api/v1/recipe', Recipes)
 app.use('/api/v1/user', User)
 app.use('/api/v1/auth', Auth)
+app.use('/api/v1/food', Food)
 
 app.listen(PORT, () => {
     console.log(`Server listening on localhost:${PORT}`)
