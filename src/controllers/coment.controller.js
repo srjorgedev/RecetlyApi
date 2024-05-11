@@ -1,5 +1,39 @@
 import { Supabase } from "../database/Connection.js"
 
+export async function GetComment(id) {
+    try {
+        const { data, error } = await Supabase
+            .from('recipes_comments')
+            .select('*, user_basic_information(user_id, user_username, user_pfp)')
+            .eq('recipe_id', id)
+
+        if (error) throw new Error(error.message)
+
+        if (data.length == 0) {
+            return {
+                status: 'Ok',
+                error: false,
+                errorMessage: null,
+                data: 'La receta no tiene comentarios'
+            }
+        }
+
+        return {
+            status: 'Ok',
+            error: false,
+            errorMessage: null,
+            data: data
+        }
+    } catch (error) {
+        return {
+            status: 'Fail',
+            error: true,
+            errorMessage: error.message,
+            data: 'Error al obtener los comentarios de la receta'
+        }
+    }
+}
+
 export async function PostComment(comment, user_id, recipe_id) {
     try {
         const { data, error } = await Supabase

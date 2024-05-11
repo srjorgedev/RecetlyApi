@@ -1,15 +1,21 @@
 import express from "express"
 import LogIn, { GetUser } from "../controllers/auth.controller.js"
-import FormatUserData from "../functions/user.format.js"
-import { UploadImageWithoutBuffer } from "../controllers/image.controller.js"
+import FormatUserData from "../services/user.format.js"
+import { uploadSingleImage } from "../controllers/image.controller.js"
 import { SignUp } from "../controllers/auth.controller.js"
+import multer from "multer"
 
 const Router = express.Router()
+
+const storage = multer.memoryStorage()
+const uploads = multer({
+    storage: storage,
+    preservePath: true
+})
 
 Router.post('/login', async (req, res) => {
     try {
         const { email, password } = req.body
-
         const { error, login, errorMessage, status, id } = await LogIn(email, password)
 
         res.json({
@@ -58,16 +64,15 @@ Router.get('/get/:id', async (req, res) => {
     }
 })
 
-Router.post('/signup', async (req, res) => {
+Router.post('/signup', uploads.single('img'), async (req, res) => {
     try {
-        const { name, username, lastname, img, email, password } = req.body
-        let url
+        const { name, username, lastname, email, password } = req.body
 
-        if (!img || !img.base64 || img.base64 === "" || img.base64.length < 1) {
+        var url
+        if (!req.file) {
             url = 'https://ik.imagekit.io/uv3u01crv/User_default.webp'
         } else {
-            const buffer = Buffer.from(img.base64, 'base64')
-            url = await UploadImageWithoutBuffer(buffer, img.fileName)
+            url = await uploadSingleImage(req.file)
         }
 
         const { data, error, errorMessage, status } = await SignUp(username, name, lastname, url, password, email)

@@ -1,6 +1,7 @@
 import express from "express"
-import { GetUserData, UpdateUserData, DeleteUser } from "../controllers/user.controller.js"
+import { GetUserData, UpdateUserData, DeleteUser, GetUserRecipes } from "../controllers/user.controller.js"
 import { DeleteFavoriteRecipe, GetUserFavoriteCheck, GetUserFavoriteRecipes, SetFavoriteRecipe } from "../controllers/favorites.controller.js"
+import { UploadImageWithoutBuffer } from '../controllers/image.controller.js'
 
 const Router = express.Router()
 
@@ -19,6 +20,33 @@ Router.get('/get/public/data/:id', async (req, res) => {
             error,
             errorMessage,
             data
+        })
+
+    } catch (error) {
+        res.json({
+            status: 'Fail',
+            error: true,
+            errorMessage: error.message,
+            data: null
+        })
+    }
+})
+
+Router.get('/get/recipes/:id', async (req, res) => {
+    try {
+        const { id } = req.params
+        if (id === "" || id === null || id === undefined || id === '') throw new Error('Debes proporcionar el id del usuario')
+
+        const { data, error, errorMessage, status } = await GetUserRecipes(id)
+        const recipes = data.map(recipe => recipe.recipe_id)
+
+        if (error || status === 'Fail') throw new Error(errorMessage)
+
+        res.json({
+            status,
+            error,
+            errorMessage,
+            data: recipes
         })
 
     } catch (error) {
@@ -184,7 +212,7 @@ Router.post('/delete/profile/:id', async (req, res) => {
         if (error) throw new Error(errorMessage)
 
         return res.json({
-            status, 
+            status,
             data,
             error,
             errorMessage

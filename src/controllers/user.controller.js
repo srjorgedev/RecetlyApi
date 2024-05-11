@@ -27,6 +27,32 @@ export async function GetUserData(id) {
     }
 }
 
+export async function GetUserRecipes(id) {
+    try {
+        const { data, error } = await Supabase
+            .from('recipes_basic')
+            .select('recipe_id')
+            .eq('user_id', id)
+
+        if (error) throw new Error(error.message)
+        if (data.length < 1) throw new Error('No se encontro el usuario')
+
+        return {
+            status: 'Ok',
+            data: data,
+            error: false,
+            errorMessage: null
+        }
+    } catch (error) {
+        return {
+            status: 'Fail',
+            data: null,
+            error: true,
+            errorMessage: error.message
+        }
+    }
+}
+
 export async function UpdateUserData(id, update) {
     try {
         const { data, error } = await Supabase

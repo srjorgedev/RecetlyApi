@@ -54,6 +54,36 @@ export async function GetBasicRecipes() {
     }
 }
 
+export async function GetBasicRecipesById(id) {
+    try {
+        const { data, error } = await Supabase
+            .from('recipes_basic')
+            .select(`
+                recipe_id,
+                recipe_name,
+                recipe_img
+            `)
+            .eq('recipe_id', id)
+
+        if (error) throw new Error(error.message)
+        if (data.length === 0) throw new Error('No hay recetas')
+
+        return {
+            status: 'Ok',
+            data: data,
+            error: false,
+            errorMessage: null
+        }
+    } catch (error) {
+        return {
+            status: 'Fail',
+            data: null,
+            error: true,
+            errorMessage: error
+        }
+    }
+}
+
 export async function GetRecipeById(id) {
     try {
         const { data, error } = await Supabase
@@ -173,6 +203,65 @@ export async function UpdateRecipe(recipe, recipe_id, user_id) {
         return {
             data: 'La receta no pudo ser actualizada',
             status: 'Fail',
+            error: true,
+            errorMessage: error.message
+        }
+    }
+}
+
+export async function GetRandomRecipe() {
+    try {
+        const { data, error } = await Supabase
+            .from('random_recipe_2')
+            .select(`
+            recipe_id,
+            recipe_name,
+            recipe_img
+        `)
+            .limit(1)
+            .single()
+
+        if (error) throw new Error(error.message)
+
+        return {
+            status: 'Ok',
+            data: data,
+            error: false,
+            errorMessage: null
+        }
+    } catch (error) {
+        return {
+            status: 'Fail',
+            data: null,
+            error: true,
+            errorMessage: error.message
+        }
+    }
+}
+
+export async function GetRecipeByCat(cat) {
+    try {
+        const { data, error } = await Supabase
+            .from('recipes_basic')
+            .select(`
+            recipe_id,
+            recipe_name,
+            recipe_img
+        `)
+            .overlaps('recipe_type', [cat])
+
+        if (error) throw new Error(error.message)
+
+        return {
+            status: 'Ok',
+            data: data,
+            error: false,
+            errorMessage: null
+        }
+    } catch (error) {
+        return {
+            status: 'Fail',
+            data: null,
             error: true,
             errorMessage: error.message
         }
